@@ -1,0 +1,60 @@
+image: Windows Server 2019
+
+build_script:
+- ps: Write-host "`nAppVeyor Azure VMs for heterogeneous build scenarios.`nDefault is Standard_D2s_v3 VM Size, and Standard_D4s_v3 for Quad VM plan users.`nIt is in Preview now. Please send email to support@appveyor.com if you want to try.`n" -foregroundcolor yellow
+
+- ps: Write-host "`n*** VM CONFIGURATION ***`n" -foregroundcolor yellow
+
+- ps: Write-host "`nCheck number of logical CPUs" -foregroundcolor green
+- ps: gcim Win32_Processor | % { "$($_.NumberOfLogicalProcessors) logical CPUs" }
+
+- ps: Write-host "`nCheck memory size" -foregroundcolor green
+- ps: gcim Win32_OperatingSystem | % { "$([int]($_.TotalVisibleMemorySize/1mb)) Gb" }
+
+- ps: Write-host "`n*** DOCKER ***`n" -foregroundcolor yellow
+
+- ps: Write-host "`nRunning simple command in Linux container" -foregroundcolor green
+- docker run --rm busybox echo hello_world_busybox
+   
+- ps: Write-host "`nMapping local folder to a Linux container"  -foregroundcolor green
+- ps: mkdir C:\Test -ErrorAction Ignore | Out-Null; Set-Content -Value "Mapped folder file content" -Path C:\Test\readme.txt | Out-Null
+- docker run --rm -v C:\Test:/c-test busybox cat /c-test/readme.txt
+
+- ps: Write-host "`nList local docker images"  -foregroundcolor green
+- docker images
+
+- ps: Write-host "`nRunning simple command in Ununtu 18.04 container (no local image exists)" -foregroundcolor green
+- docker run --rm ubuntu:18.04 echo hello_world_ubuntu_18_04
+
+- ps: Write-host "`nRun Server Core images in Hyper-V isolation mode"  -foregroundcolor green
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:ltsc2016 cmd /c echo hello_world_servercore_ltsc2016
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:1709 cmd /c echo hello_world_servercore_1709
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:1803 cmd /c echo hello_world_servercore_1803
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:ltsc2019 cmd /c echo hello_world_servercore_ltsc2019
+            
+- ps: Write-host "`nRun Nano Server images in Hyper-V isolation mode"  -foregroundcolor green
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:sac2016 cmd /c echo hello_world_nanoserver_sac2016
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1709 cmd /c echo hello_world_nanoserver_1709
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1803 cmd /c echo hello_world_nanoserver_1803
+- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1809 cmd /c echo hello_world_nanoserver_1809
+
+- ps: Write-host "`n*** WSL ***`n" -foregroundcolor yellow
+
+- ps: Write-host "`nRun Ubuntu in WSL"  -foregroundcolor green
+- wslconfig /setdefault ubuntu
+- wsl lsb_release -a
+
+- ps: Write-host "`nRun Ubuntu 18.04 in WSL"  -foregroundcolor green
+- wslconfig /setdefault ubuntu-18.04
+- wsl lsb_release -a
+
+- ps: Write-host "`n*** NETWORKING ***`n" -foregroundcolor yellow
+
+- ps: Write-host "`nVMs public IPs are limited and defined at https://www.appveyor.com/docs/build-environment/#ip-addresses -- safely update your firewall. `nRight now it is only 13.83.108.89 for Azure VMs. Later more can be added."  -foregroundcolor green
+- ps: (Invoke-WebRequest https://api.ipify.org).content
+
+- ps: Write-host "`nRDP access to Azure VMs available the same way as for other AppVeyor builds"  -foregroundcolor green
+- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
+test: off
+deploy: off
