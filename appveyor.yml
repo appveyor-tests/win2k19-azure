@@ -1,7 +1,7 @@
 image: Windows Server 2019
 
 build_script:
-- ps: Write-host "`nAppVeyor Azure VMs for heterogeneous build scenarios.`nDefault is Standard_D2s_v3 VM Size, and Standard_D4s_v3 for Quad VM plan users.`nIt is in Preview now. Please send email to support@appveyor.com if you want to try.`n" -foregroundcolor yellow
+- ps: Write-host "`nAppVeyor Azure VMs for heterogeneous build scenarios.`nDefault is Standard_D2s_v3 VM Size. Custom plan with Standard_D4s_v3 can be created per request.`nIt is in Preview now. Please send email to support@appveyor.com if you want to try.`n" -foregroundcolor yellow
 
 - ps: Write-host "`n*** VM CONFIGURATION ***`n" -foregroundcolor yellow
 
@@ -15,6 +15,8 @@ build_script:
 
 - ps: Write-host "`nSwitch to linux engine"  -foregroundcolor green
 - ps: Switch-DockerLinux
+
+- ps: Write-host "`nIf you prefer CMD, use 'docker-switch-linux' command"  -foregroundcolor green
 
 - ps: Write-host "`nList local docker linux images"  -foregroundcolor green
 - docker images
@@ -34,6 +36,8 @@ build_script:
 - ps: Write-host "`nSwitch to Windows engine"  -foregroundcolor green
 - ps: Switch-DockerWindows
 
+- ps: Write-host "`nIf you prefer CMD, use 'docker-switch-windows' command"  -foregroundcolor green
+
 - ps: Write-host "`nList local docker Windows images"  -foregroundcolor green
 - docker images
 
@@ -46,6 +50,8 @@ build_script:
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:sac2016 cmd /c echo hello_world_nanoserver_sac2016
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1803 cmd /c echo hello_world_nanoserver_1803
 - docker run --rm --isolation=default mcr.microsoft.com/windows/nanoserver:1809 cmd /c echo hello_world_nanoserver_1809
+
+- ps: Write-host "`nNote that older Windows images run in Hyper-V isolation mode"  -foregroundcolor Yellow
 
 - ps: Write-host "`n*** WSL ***`n" -foregroundcolor yellow
 
