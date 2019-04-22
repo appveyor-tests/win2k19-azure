@@ -13,30 +13,39 @@ build_script:
 
 - ps: Write-host "`n*** DOCKER ***`n" -foregroundcolor yellow
 
-- ps: Write-host "`nRunning simple command in Linux container" -foregroundcolor green
-- docker run --rm busybox echo hello_world_busybox
-   
-- ps: Write-host "`nMapping local folder to a Linux container"  -foregroundcolor green
-- ps: mkdir C:\Test -ErrorAction Ignore | Out-Null; Set-Content -Value "Mapped folder file content" -Path C:\Test\readme.txt | Out-Null
-- docker run --rm -v C:\Test:/c-test busybox cat /c-test/readme.txt
+- ps: Write-host "`nSwitch to linux engine"  -foregroundcolor green
+- ps: Switch-DockerLinux
 
-- ps: Write-host "`nList local docker images"  -foregroundcolor green
+- ps: Write-host "`nList local docker linux images"  -foregroundcolor green
 - docker images
 
-- ps: Write-host "`nRunning simple command in Ununtu 18.04 container (no local image exists)" -foregroundcolor green
-- docker run --rm ubuntu:18.04 echo hello_world_ubuntu_18_04
+- ps: Write-host "`nRunning simple command in Linux container" -foregroundcolor green
+- docker run --rm busybox echo hello_world_busybox
 
-- ps: Write-host "`nRun Server Core images in Hyper-V isolation mode"  -foregroundcolor green
+- ps: Write-host "`nRunning simple command in Ununtu 18.04 container (no local image exists)" -foregroundcolor green
+- docker run --rm ubuntu:18.04 echo hello_world_ubuntu_18_04   
+
+- ps: |
+    Write-host "`nDrive D: is shared in Docker for Windows to exhange files between Linux containers and build VM"  -foregroundcolor green
+    Write-host "Here we creating folder and file on the host VM and checking it from Linux container:"  -foregroundcolor green
+    mkdir D:\host | Out-Null
+    Set-Content -Value "Mapped folder file content" -Path D:\host\readme.txt | Out-Null
+    docker run --rm -v D:/host:/host busybox cat /host/readme.txt
+- ps: Write-host "`nSwitch to Windows engine"  -foregroundcolor green
+- ps: Switch-DockerWindows
+
+- ps: Write-host "`nList local docker Windows images"  -foregroundcolor green
+- docker images
+
+- ps: Write-host "`nRun Server Core images" -foregroundcolor green
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:ltsc2016 cmd /c echo hello_world_servercore_ltsc2016
-- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:1709 cmd /c echo hello_world_servercore_1709
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:1803 cmd /c echo hello_world_servercore_1803
-- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/servercore:ltsc2019 cmd /c echo hello_world_servercore_ltsc2019
+- docker run --rm --isolation=default mcr.microsoft.com/windows/servercore:ltsc2019 cmd /c echo hello_world_servercore_ltsc2019
             
-- ps: Write-host "`nRun Nano Server images in Hyper-V isolation mode"  -foregroundcolor green
+- ps: Write-host "`nRun Nano Server images"  -foregroundcolor green
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:sac2016 cmd /c echo hello_world_nanoserver_sac2016
-- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1709 cmd /c echo hello_world_nanoserver_1709
 - docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1803 cmd /c echo hello_world_nanoserver_1803
-- docker run --rm --isolation=hyperv mcr.microsoft.com/windows/nanoserver:1809 cmd /c echo hello_world_nanoserver_1809
+- docker run --rm --isolation=default mcr.microsoft.com/windows/nanoserver:1809 cmd /c echo hello_world_nanoserver_1809
 
 - ps: Write-host "`n*** WSL ***`n" -foregroundcolor yellow
 
